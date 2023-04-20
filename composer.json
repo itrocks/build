@@ -1,0 +1,11 @@
+{
+	"authors":  [{ "name": "Baptiste Pillot", "email": "baptiste@pillot.fr" }],
+	"autoload": { "psr-4": { "ITRocks\\Build\\": "src/" } },
+	"description": "Extend your PHP classes: add interface and traits or replace with a child class",
+	"homepage":    "https://github.com/itrocks/build",
+	"license":     "LGPL-3.0-or-later",
+	"minimum-stability": "dev",
+	"name":    "itrocks/build",
+	"require": { "itrocks/depend": "dev-master", "php": ">=8.2" },
+	"type":    "library"
+}
