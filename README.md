@@ -1,10 +1,10 @@
 PHP class builder 
 -----------------
 
-This librairy allows you to statically extend your PHP classes: add interface and traits or replace
-them with a child class when they are instantiated. This is not simply mocking, its aim is to allow
-you to create highly configurable applications, with class features activated or not, depending on
-the deploy environment.
+This it.rocks library allows you to statically extend your PHP classes: add interface and traits or
+replace them with a child class when they are instantiated. This is not simply mocking, its aim is
+to allow you to create highly configurable applications, with class features activated or not,
+depending on the deployment environment.
 
 It is designed to be simple to apply to any PHP project, and fast to execute.
 
@@ -38,26 +38,26 @@ Nothing work today, but it is coming soon.
 How it works
 ------------
 
-- You write the class building table into a configuration array :
+- You write the class building table into a configuration array:
   class => child class or class => added interfaces and traits.
-- Your traits can embed rules about inheritability : if you need some traits to be on another class
+- Your traits can embed rules about inheritability: if you need some traits to be on another class
   level than others, because they extend their capabilities, you will use the #Extend attribute to
   describe this hierarchy rule.
 - Your project must have an "update" phase: a procedure that will run everytime a php file is
   modified.
-- During this phase, the builder uses itrocks/depend to scan all class dependencies.
+- During this phase, the builder uses itrocks/class-use to scan all class dependencies.
 - Using the class replacement table, the builder prepares the dynamic implementation of built
   replacement classes.
 - Everywhere your application or vendors use a class, the class name is replaced by the built class
-  reference. The modification is directly done into the tokens tree and the files marked for writting.
+  reference. The modification is directly done into the tokens tree and the files marked for writing.
 - The modified PHP files are written the cache directory.
 - To use the modified PHP files instead of the original, a PHP file input filter is applied.
-  It allows you to debug your applications and get error messages refering to the original PHP file,
+  It allows you to debug your applications and get error messages referring to the original PHP file,
   but the actual executed code comes from the cached modified PHP scripts.
 
-This make it very fast on execution time : when you run your scripts, no more code than necessary
+This make it very fast on execution time: when you run your scripts, no more code than necessary
 is executed to instantiate your built classes instead of the original ones. You can use PHP oriented
-object programming the simpliest way : without interface when you do not need it, and you can inject
+object programming the simplest way: without interface when you do not need it, and you can inject
 dependencies into any exiting class or trait using this library, without the original code being
 prepared for this.
 
@@ -102,7 +102,7 @@ $config['build'] = [
 ];
 ```
 
-Then, when your source code simply intantiate a car and gets its maximum speed information, you
+Then, when your source code simply instantiate a car and gets its maximum speed information, you
 don't have to change anything: itrocks/build will make the replacement into an internal cache file
 and instantiate the new replacement class:
 
