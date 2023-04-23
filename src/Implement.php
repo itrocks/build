@@ -127,8 +127,11 @@ trait Implement
 			$old_components = $old_configuration[$class] ?? [];
 			if (
 				!is_array($components)
-				|| array_diff($components, $old_components)
-				|| array_diff($old_components, $components)
+				|| (
+					(count($components) === count($old_components))
+					&& !array_diff($components, $old_components)
+					&& !array_diff($old_components, $components)
+				)
 			) {
 				continue;
 			}
@@ -181,7 +184,7 @@ trait Implement
 		foreach ($traits as $trait) {
 			$search[Index::CLASS_] = $trait;
 			foreach ($this->class_index->search($search, true) as $extend) {
-				if (in_array($extend[Index::USE], $traits)) {
+				if (in_array($extend[Index::USE], $traits, true)) {
 					$extends[$trait][] = $extend[Index::USE];
 				}
 			}
@@ -194,7 +197,7 @@ trait Implement
 			foreach ($traits as $trait) {
 				// has every extend of this trait been used
 				foreach ($extends[$trait] ?? [] as $extend) {
-					if (in_array($extend, $traits)) {
+					if (in_array($extend, $traits, true)) {
 						$next_traits[] = $trait;
 						continue 2;
 					}
