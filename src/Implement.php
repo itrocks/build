@@ -30,10 +30,10 @@ trait Implement
 	{
 		// prepare
 		$search     = [Index::TYPE => Token::DECLARE_CLASS, Index::USE => $class];
-		$class_use  = $this->class_index->search($search)[0] ?? false;
+		$class_use  = $this->class_index->search($search, true)[0] ?? false;
 		$last_level = array_key_last($composition[T_TRAIT]);
 		if ($class_use) {
-			$extends  = $class;
+			$extends  = "\\$class";
 			$abstract = $this->isAbstract($class_use);
 			$type     = 'class';
 		}
@@ -62,7 +62,7 @@ trait Implement
 			$source .= $type . ' ' . $built;
 			if ($class_use) {
 				/** @noinspection PhpUndefinedVariableInspection if ($class_use) */
-				$source .= " extends \\$extends";
+				$source .= " extends $extends";
 			}
 			if ($is_last && $class_use && ($implements = $composition[T_INTERFACE])) {
 				$source .= "\n\timplements \\" . join(', \\', $implements);
@@ -179,9 +179,9 @@ trait Implement
 		$extends  = [];
 		$search   = [Index::TYPE => Extend::class];
 		foreach ($traits as $trait) {
-			$search[Index::CLASS] = $trait;
-			foreach ($this->class_index->search($search) as $extend) {
-				if (in_array($extend, $traits)) {
+			$search[Index::CLASS_] = $trait;
+			foreach ($this->class_index->search($search, true) as $extend) {
+				if (in_array($extend[Index::USE], $traits)) {
 					$extends[$trait][] = $extend[Index::USE];
 				}
 			}
