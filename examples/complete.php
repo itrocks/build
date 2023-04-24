@@ -4,10 +4,16 @@ namespace ITRocks\Build\Examples;
 use ITRocks\Build;
 use ITRocks\Class_Use\Repository;
 use ITRocks\Extend;
+use ITRocks\Extend\Implement;
 
 include __DIR__ . '/autoload.php';
 
-#[Extend(Has_Code::class)]
+interface An_Interface
+{
+	public function calculate();
+}
+
+#[Extend(Has_Code::class), Implement(An_Interface::class)]
 trait Calculate_Code
 {
 	public function calculate()

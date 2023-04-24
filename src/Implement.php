@@ -20,6 +20,24 @@ trait Implement
 	 */
 	protected array $types = [];
 
+	//---------------------------------------------------------------------------- addTraitImplements
+	/**
+	 * @param $composition string[][] $component[self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE|T_TRAIT][]
+	 */
+	protected function addTraitImplements(array &$composition) : void
+	{
+		$interfaces =& $composition[T_INTERFACE];
+		$search     =  [Index::TYPE => Extend\Implement::class];
+		foreach ($composition[T_TRAIT] as $trait) {
+			$search[Index::CLASS_] = $trait;
+			foreach ($this->class_index->search($search, true) as $implement) {
+				if (!in_array($implement, $interfaces)) {
+					$interfaces[] = $implement[Index::USE];
+				}
+			}
+		}
+	}
+	
 	//--------------------------------------------------------------------------------------- compose
 	/**
 	 * @param $composition string[][][]|string[][] $trait[T_TRAIT][int $level][]
@@ -88,7 +106,8 @@ trait Implement
 	protected function compositionTree(array $components) : array
 	{
 		$this->identifyComponents($components);
-		$composition          = $this->sortComponents($components);
+		$composition = $this->sortComponents($components);
+		$this->addTraitImplements($composition);
 		$composition[T_TRAIT] = $this->traitsByLevel($composition[T_TRAIT]);
 		return $composition;
 	}
@@ -97,6 +116,7 @@ trait Implement
 	/** @var $components string[] Annotations/attributes/interfaces/traits */
 	protected function identifyComponents(array $components) : void
 	{
+		$search = [Index::TYPE => Token::DECLARE_TRAIT];
 		foreach ($components as $component) {
 			if ($component[0] === '#') {
 				$this->types[$component] = T_ATTRIBUTE;
@@ -109,7 +129,7 @@ trait Implement
 			elseif (isset($this->types[$component])) {
 				continue;
 			}
-			$search = [Index::TYPE => Token::DECLARE_TRAIT, Index::USE => $component];
+			$search[Index::USE]      = $component;
 			$this->types[$component] = $this->class_index->search($search) ? T_TRAIT : T_INTERFACE;
 		}
 	}
@@ -179,8 +199,8 @@ trait Implement
 	 */
 	protected function traitsByLevel(array $traits) : array
 	{
-		$extends  = [];
-		$search   = [Index::TYPE => Extend::class];
+		$extends = [];
+		$search  = [Index::TYPE => Extend::class];
 		foreach ($traits as $trait) {
 			$search[Index::CLASS_] = $trait;
 			foreach ($this->class_index->search($search, true) as $extend) {

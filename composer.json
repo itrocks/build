@@ -6,6 +6,6 @@
 	"license":     "LGPL-3.0-or-later",
 	"minimum-stability": "dev",
 	"name":    "itrocks/build",
-	"require": { "itrocks/class-use": "dev-master", "php": ">=8.2" },
+	"require": { "itrocks/class-use": "dev-master", "itrocks/extend": "dev-master", "php": ">=8.2" },
 	"type":    "library"
 }
