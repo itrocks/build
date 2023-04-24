@@ -11,9 +11,6 @@ trait Implement
 	//---------------------------------------------------------------------------------- T_ANNOTATION
 	const T_ANNOTATION = 0;
 
-	//------------------------------------------------------------------------ $extend_attribute_name
-	public string $extend_attribute_name = Extend::class;
-
 	//---------------------------------------------------------------------------------------- $types
 	/**
 	 * @var int[] (self::T_ANNOTATION|T_ATTRIBUTE|T_CLASS|T_INTERFACE|T_TRAIT)[string $interface_name]
@@ -156,7 +153,7 @@ trait Implement
 				continue;
 			}
 			$source   = $this->compose($class, $this->compositionTree($components));
-			$filename = $this->getCacheDirectory() . '/build/' . str_replace('\\', '-', $class);
+			$filename = $this->getCacheDirectory() . '/build/' . str_replace('\\', '-', $class) . '-B';
 			file_put_contents($filename, $source);
 		}
 		$this->saveCacheConfigurationFile($cache_configuration_file);
@@ -167,7 +164,10 @@ trait Implement
 	protected function isAbstract(array $class_use) : bool
 	{
 		$tokens = $this->class_index->file_tokens[$class_use[Index::FILE]]
-			?? token_get_all(file_get_contents($class_use[Index::FILE]), TOKEN_PARSE);
+			?? (
+				$this->class_index->file_tokens[$class_use[Index::FILE]]
+				= token_get_all(file_get_contents($class_use[Index::FILE]), TOKEN_PARSE)
+			);
 		$token_key = $class_use[Index::TOKEN_KEY] - 1;
 		while (!in_array($is = $tokens[$token_key][0], [';', '}', T_OPEN_TAG], true)) {
 			if ($is === T_ABSTRACT) {

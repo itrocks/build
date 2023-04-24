@@ -49,6 +49,22 @@ class Final_User extends User
 {
 }
 
+trait Other_Trait
+{
+	use Calculate_Code;
+}
+
+class Other_Item extends Item
+{
+}
+
+class Other_User extends User
+{
+}
+
+$item = new Item;
+$user = new User;
+
 $configuration = [
 	Calculate_Code::class => [Calculate_Code_2::class],
 	Item::class => [Calculate_Code::class, Has_Code::class],
@@ -65,6 +81,6 @@ $build->implement();
 $build->replace();
 
 echo "\nReplacement class for Calculate_Code :\n\n";
-readfile(__DIR__ . '/cache/build/ITRocks-Build-Examples-Calculate_Code');
+readfile(__DIR__ . '/cache/build/ITRocks-Build-Examples-Calculate_Code-B');
 echo "\nReplacement class for Item :\n\n";
-readfile(__DIR__ . '/cache/build/ITRocks-Build-Examples-Item');
+readfile(__DIR__ . '/cache/build/ITRocks-Build-Examples-Item-B');
