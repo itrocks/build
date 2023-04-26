@@ -1,16 +1,11 @@
 <?php
 namespace ITRocks\Build;
 
-use ITRocks\Class_Use\Repository\Type as Index;
-use ITRocks\Class_Use\Tokens_Scanner\Type as Token;
-
 trait Replace
 {
 
 	//-------------------------------------------------------------------------------- REPLACED_TYPES
-	const REPLACED_TYPES = [
-		Token::ATTRIBUTE, Token::CLASS_, Token::EXTENDS, Token::NEW, Token::STATIC, Token::USE
-	];
+	const REPLACED_TYPES = [T_ATTRIBUTE, T_CLASS, T_EXTENDS, T_NEW, T_STATIC, T_USE];
 
 	//---------------------------------------------------------------------------------- $write_files
 	/**
@@ -24,9 +19,9 @@ trait Replace
 	public function replace() : void
 	{
 		foreach ($this->configuration as $class => $replacement) {
-			foreach (static::REPLACED_TYPES as $search[Index::TYPE]) {
-				$search[Index::USE] = $class;
-				$class_uses         = $this->class_index->search($search, true);
+			foreach (static::REPLACED_TYPES as $search[T_TYPE]) {
+				$search[T_USE] = $class;
+				$class_uses    = $this->class_index->search($search, true);
 				if (!$class_uses) {
 					continue;
 				}
@@ -35,12 +30,12 @@ trait Replace
 				}
 				foreach ($class_uses as $class_use) {
 					if (
-						($search[Index::TYPE] === Token::EXTENDS)
-						&& in_array($class_use[Index::CLASS_], $this->configuration)
+						($search[T_TYPE] === T_EXTENDS)
+						&& in_array($class_use[T_CLASS], $this->configuration)
 					) {
 						continue;
 					}
-					$filename = $class_use[Index::FILE];
+					$filename = $class_use[T_FILE];
 					if (!isset($this->class_index->file_tokens[$filename])) {
 						$this->class_index->file_tokens[$filename]
 							= token_get_all(file_get_contents($filename), TOKEN_PARSE);
@@ -48,10 +43,10 @@ trait Replace
 					if (!isset($this->write_files[$filename])) {
 						$this->write_files[$filename] =& $this->class_index->file_tokens[$filename];
 					}
-					$this->write_files[$filename][$class_use[Index::TOKEN_KEY]] = [
+					$this->write_files[$filename][$class_use[T_TOKEN_KEY]] = [
 						T_NAME_FULLY_QUALIFIED,
 						'\\' . $replacement,
-						$class_use[Index::LINE]
+						$class_use[T_LINE]
 					];
 				}
 			}

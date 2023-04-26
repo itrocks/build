@@ -2,7 +2,7 @@
 namespace ITRocks\Build\Examples;
 
 use ITRocks\Build;
-use ITRocks\Class_Use\Repository;
+use ITRocks\Class_Use\Index;
 use ITRocks\Extend;
 use ITRocks\Extend\Implement;
 
@@ -71,7 +71,7 @@ $configuration = [
 	User::class => Final_User::class
 ];
 
-$class_index = new Repository(Repository::RESET, __DIR__);
+$class_index = new Index(Index::RESET, __DIR__);
 $class_index->keepFileTokens();
 $class_index->update();
 

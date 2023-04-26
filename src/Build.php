@@ -4,7 +4,7 @@ namespace ITRocks;
 use ITRocks\Build\Cache;
 use ITRocks\Build\Implement;
 use ITRocks\Build\Replace;
-use ITRocks\Class_Use\Repository;
+use ITRocks\Class_Use\Index;
 
 class Build
 {
@@ -14,7 +14,7 @@ class Build
 	const PREFIX = 'B';
 
 	//---------------------------------------------------------------------------------- $class_index
-	public Repository $class_index;
+	public Index $class_index;
 
 	//-------------------------------------------------------------------------------- $configuration
 	/** @var (string|string[])[] [string $class => string $replacement | [string $interface_trait]] */
@@ -25,7 +25,7 @@ class Build
 	public array $file_tokens;
 
 	//----------------------------------------------------------------------------------- __construct
-	public function __construct(array $configuration, Repository $class_index)
+	public function __construct(array $configuration, Index $class_index)
 	{
 		$this->class_index   = $class_index;
 		$this->configuration = $configuration;

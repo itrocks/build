@@ -1,8 +1,6 @@
 <?php
 namespace ITRocks\Build;
 
-use ITRocks\Class_Use\Repository\Type as Index;
-use ITRocks\Class_Use\Tokens_Scanner\Type as Token;
 use ITRocks\Extend;
 
 trait Implement
@@ -24,12 +22,12 @@ trait Implement
 	protected function addTraitImplements(array &$composition) : void
 	{
 		$interfaces =& $composition[T_INTERFACE];
-		$search     =  [Index::TYPE => Extend\Implement::class];
+		$search     =  [T_TYPE => Extend\Implement::class];
 		foreach ($composition[T_TRAIT] as $trait) {
-			$search[Index::CLASS_] = $trait;
+			$search[T_CLASS] = $trait;
 			foreach ($this->class_index->search($search, true) as $implement) {
 				if (!in_array($implement, $interfaces)) {
-					$interfaces[] = $implement[Index::USE];
+					$interfaces[] = $implement[T_USE];
 				}
 			}
 		}
@@ -44,7 +42,7 @@ trait Implement
 	protected function compose(string $class, array $composition) : string
 	{
 		// prepare
-		$search     = [Index::TYPE => Token::DECLARE_CLASS, Index::USE => $class];
+		$search     = [T_TYPE => T_DECLARE_CLASS, T_USE => $class];
 		$class_use  = $this->class_index->search($search, true)[0] ?? false;
 		$last_level = array_key_last($composition[T_TRAIT]);
 		if ($class_use) {
@@ -113,7 +111,7 @@ trait Implement
 	/** @var $components string[] Annotations/attributes/interfaces/traits */
 	protected function identifyComponents(array $components) : void
 	{
-		$search = [Index::TYPE => Token::DECLARE_TRAIT];
+		$search = [T_TYPE => T_DECLARE_TRAIT];
 		foreach ($components as $component) {
 			if ($component[0] === '#') {
 				$this->types[$component] = T_ATTRIBUTE;
@@ -126,7 +124,7 @@ trait Implement
 			elseif (isset($this->types[$component])) {
 				continue;
 			}
-			$search[Index::USE]      = $component;
+			$search[T_USE]           = $component;
 			$this->types[$component] = $this->class_index->search($search) ? T_TRAIT : T_INTERFACE;
 		}
 	}
@@ -160,15 +158,15 @@ trait Implement
 	}
 
 	//------------------------------------------------------------------------------------ isAbstract
-	/** @param $class_use (int|string)[] [string[Index::FILE], int[Index::TOKEN_KEY], ...] */
+	/** @param $class_use (int|string)[] [string[T_FILE], int[T_TOKEN_KEY], ...] */
 	protected function isAbstract(array $class_use) : bool
 	{
-		$tokens = $this->class_index->file_tokens[$class_use[Index::FILE]]
+		$tokens = $this->class_index->file_tokens[$class_use[T_FILE]]
 			?? (
-				$this->class_index->file_tokens[$class_use[Index::FILE]]
-				= token_get_all(file_get_contents($class_use[Index::FILE]), TOKEN_PARSE)
+				$this->class_index->file_tokens[$class_use[T_FILE]]
+				= token_get_all(file_get_contents($class_use[T_FILE]), TOKEN_PARSE)
 			);
-		$token_key = $class_use[Index::TOKEN_KEY] - 1;
+		$token_key = $class_use[T_TOKEN_KEY] - 1;
 		while (!in_array($is = $tokens[$token_key][0], [';', '}', T_OPEN_TAG], true)) {
 			if ($is === T_ABSTRACT) {
 				return true;
@@ -200,12 +198,12 @@ trait Implement
 	protected function traitsByLevel(array $traits) : array
 	{
 		$extends = [];
-		$search  = [Index::TYPE => Extend::class];
+		$search  = [T_TYPE => Extend::class];
 		foreach ($traits as $trait) {
-			$search[Index::CLASS_] = $trait;
+			$search[T_CLASS] = $trait;
 			foreach ($this->class_index->search($search, true) as $extend) {
-				if (in_array($extend[Index::USE], $traits, true)) {
-					$extends[$trait][] = $extend[Index::USE];
+				if (in_array($extend[T_USE], $traits, true)) {
+					$extends[$trait][] = $extend[T_USE];
 				}
 			}
 		}
