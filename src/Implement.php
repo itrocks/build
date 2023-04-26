@@ -161,11 +161,11 @@ trait Implement
 	/** @param $class_use (int|string)[] [string[T_FILE], int[T_TOKEN_KEY], ...] */
 	protected function isAbstract(array $class_use) : bool
 	{
-		$tokens = $this->class_index->file_tokens[$class_use[T_FILE]]
-			?? (
-				$this->class_index->file_tokens[$class_use[T_FILE]]
-				= token_get_all(file_get_contents($class_use[T_FILE]), TOKEN_PARSE)
-			);
+		$tokens = $this->class_index->file_tokens[$class_use[T_FILE]] ?? null;
+		if (!$tokens) {
+			$tokens = $this->class_index->file_tokens[$class_use[T_FILE]]
+				= token_get_all(file_get_contents($class_use[T_FILE]));
+		}
 		$token_key = $class_use[T_TOKEN_KEY] - 1;
 		while (!in_array($is = $tokens[$token_key][0], [';', '}', T_OPEN_TAG], true)) {
 			if ($is === T_ABSTRACT) {

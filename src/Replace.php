@@ -35,15 +35,14 @@ trait Replace
 					) {
 						continue;
 					}
-					$filename = $class_use[T_FILE];
-					if (!isset($this->class_index->file_tokens[$filename])) {
-						$this->class_index->file_tokens[$filename]
-							= token_get_all(file_get_contents($filename), TOKEN_PARSE);
+					$file = $class_use[T_FILE];
+					if (!isset($this->class_index->file_tokens[$file])) {
+						$this->class_index->file_tokens[$file] = token_get_all(file_get_contents($file));
 					}
-					if (!isset($this->write_files[$filename])) {
-						$this->write_files[$filename] =& $this->class_index->file_tokens[$filename];
+					if (!isset($this->write_files[$file])) {
+						$this->write_files[$file] =& $this->class_index->file_tokens[$file];
 					}
-					$this->write_files[$filename][$class_use[T_TOKEN_KEY]] = [
+					$this->write_files[$file][$class_use[T_TOKEN_KEY]] = [
 						T_NAME_FULLY_QUALIFIED,
 						'\\' . $replacement,
 						$class_use[T_LINE]
@@ -51,14 +50,14 @@ trait Replace
 				}
 			}
 		}
-		foreach ($this->write_files as $filename => $tokens) {
+		foreach ($this->write_files as $file => $tokens) {
 			$buffer = '';
 			foreach ($tokens as $token) {
 				$buffer .= is_string($token) ? $token : $token[1];
 			}
-			$filename = $this->getCacheDirectory() . '/build/'
-				. str_replace(['/', '\\'], '-', substr($filename, 0, -4));
-			file_put_contents($filename, $buffer);
+			$file = $this->getCacheDirectory() . '/build/'
+				. str_replace(['/', '\\'], '-', substr($file, 0, -4));
+			file_put_contents($file, $buffer);
 		}
 	}
 
