@@ -65,17 +65,13 @@ class Other_User extends User
 $item = new Item;
 $user = new User;
 
-$configuration = [
-	Calculate_Code::class => [Calculate_Code_2::class],
-	Item::class => [Calculate_Code::class, Has_Code::class],
-	User::class => Final_User::class
-];
+$configuration = include(__DIR__ . '/configuration.php');
 
 $class_index = new Index(Index::RESET, __DIR__);
 $class_index->keepFileTokens();
 $class_index->update();
 
-$build = new Build($configuration, $class_index);
+$build = new Build($configuration, $class_index, ['configuration.php']);
 $build->prepare();
 $build->implement();
 $build->replace();

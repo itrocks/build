@@ -7,6 +7,10 @@ trait Replace
 	//-------------------------------------------------------------------------------- REPLACED_TYPES
 	const REPLACED_TYPES = [T_ATTRIBUTE, T_CLASS, T_EXTENDS, T_NEW, T_STATIC, T_USE];
 
+	//-------------------------------------------------------------------------------- $exclude_files
+	/** @var int[] 0..n[string $filename] Relative to the project home directory. */
+	public array $exclude_files;
+
 	//---------------------------------------------------------------------------------- $write_files
 	/**
 	 * @var (array|string)[][]
@@ -36,6 +40,9 @@ trait Replace
 						continue;
 					}
 					$file = $class_use[T_FILE];
+					if (isset($this->exclude_files[$file])) {
+						continue;
+					}
 					if (!isset($this->class_index->file_tokens[$file])) {
 						$this->class_index->file_tokens[$file] = token_get_all(file_get_contents($file));
 					}
