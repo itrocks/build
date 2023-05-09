@@ -11,13 +11,15 @@ trait Implement
 
 	//---------------------------------------------------------------------------------------- $types
 	/**
-	 * @var int[] (self::T_ANNOTATION|T_ATTRIBUTE|T_CLASS|T_INTERFACE|T_TRAIT)[string $interface_name]
+	 * @var array<string,int>
+	 *      array<string $component, self::T_ANNOTATION|T_ATTRIBUTE|T_CLASS|T_INTERFACE|T_TRAIT>
 	 */
 	protected array $types = [];
 
 	//---------------------------------------------------------------------------- addTraitImplements
 	/**
-	 * @param $composition string[][] $component[self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE|T_TRAIT][]
+	 * @param array<int,array<string>> $composition
+	 *        array<self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE|T_TRAIT, array<string $component>>
 	 */
 	protected function addTraitImplements(array &$composition) : void
 	{
@@ -26,17 +28,18 @@ trait Implement
 		foreach ($composition[T_TRAIT] as $trait) {
 			$search[T_CLASS] = $trait;
 			foreach ($this->class_index->search($search, true) as $implement) {
-				if (!in_array($implement, $interfaces)) {
+				if (!in_array($implement, $interfaces, true)) {
 					$interfaces[] = $implement[T_USE];
 				}
 			}
 		}
 	}
-	
+
 	//--------------------------------------------------------------------------------------- compose
 	/**
-	 * @param $composition string[][][]|string[][] $trait[T_TRAIT][int $level][]
-	 *                              $component[self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE][]
+	 * @param array<int,array<array<string>|string>> $composition
+	 *        array<self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE, array<string $component>>
+	 *        array<T_TRAIT, array<int $level, array<string $trait>>>
 	 * @return string Composed class source code
 	 */
 	protected function compose(string $class, array $composition) : string
@@ -94,9 +97,10 @@ trait Implement
 
 	//------------------------------------------------------------------------------- compositionTree
 	/**
-	 * @param $components string[]     Annotations/attributes/interfaces/traits
-	 * @return string[][][]|string[][] $trait[T_TRAIT][int $level][]
-	 *                                 $component[self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE][]
+	 * @param  string[] $components Annotations/attributes/interfaces/traits
+	 * @return array<int,array<array<string>|string>> composition
+	 *         array<self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE, array<string $component>>
+	 *         array<T_TRAIT, array<int $level, array<string $trait>>>
 	 */
 	protected function compositionTree(array $components) : array
 	{
@@ -108,7 +112,7 @@ trait Implement
 	}
 
 	//---------------------------------------------------------------------------- identifyComponents
-	/** @var $components string[] Annotations/attributes/interfaces/traits */
+	/** @var string[] $components Annotations/attributes/interfaces/traits */
 	protected function identifyComponents(array $components) : void
 	{
 		$search = [T_TYPE => T_DECLARE_TRAIT];
@@ -158,7 +162,7 @@ trait Implement
 	}
 
 	//------------------------------------------------------------------------------------ isAbstract
-	/** @param $class_use (int|string)[] [string[T_FILE], int[T_TOKEN_KEY], ...] */
+	/** @param array<int|string> $class_use <T_FILE,string $filename>|<T_TOKEN_KEY, int $token> */
 	protected function isAbstract(array $class_use) : bool
 	{
 		$tokens = $this->class_index->file_tokens[$class_use[T_FILE]] ?? null;
@@ -178,8 +182,9 @@ trait Implement
 
 	//-------------------------------------------------------------------------------- sortComponents
 	/**
-	 * @param $components string[] Annotations/attributes/interfaces/traits
-	 * @return string[][] $component[self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE|T_TRAIT][]
+	 * @param string[] $components Annotations/attributes/interfaces/traits
+	 * @return array<int,array<string>
+	 * array<self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE|T_TRAIT, string $component>
 	 */
 	protected function sortComponents(array $components) : array
 	{
@@ -192,8 +197,8 @@ trait Implement
 
 	//--------------------------------------------------------------------------------- traitsByLevel
 	/**
-	 * @param $traits string[]
-	 * @return string[][] $trait[int $level][]
+	 * @param string[] $traits
+	 * @return array<int,array<string>> array<int $level, array<string $trait>
 	 */
 	protected function traitsByLevel(array $traits) : array
 	{

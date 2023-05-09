@@ -17,11 +17,11 @@ class Build
 	public Index $class_index;
 
 	//-------------------------------------------------------------------------------- $configuration
-	/** @var (string|string[])[] [string $class => string $replacement | [string $interface_trait]] */
+	/** @var array<string,array<string>|string> <$class, <$component> | $replacement> */
 	public array $configuration;
 
 	//---------------------------------------------------------------------------------- $file_tokens
-	/** @var ((int|string)[]|string)[] */
+	/** @var array<string,array<int,array{int,string,int}|string>> */
 	public array $file_tokens;
 
 	//----------------------------------------------------------------------------------- __construct

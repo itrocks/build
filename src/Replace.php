@@ -8,13 +8,13 @@ trait Replace
 	const REPLACED_TYPES = [T_ATTRIBUTE, T_CLASS, T_EXTENDS, T_NEW, T_STATIC, T_USE];
 
 	//-------------------------------------------------------------------------------- $exclude_files
-	/** @var int[] 0..n[string $filename] Relative to the project home directory. */
+	/** @var array<string,int> <string $filename, int $key> Relative to the project home directory. */
 	public array $exclude_files;
 
 	//---------------------------------------------------------------------------------- $write_files
 	/**
-	 * @var (array|string)[][]
-	 *      ([int $token, string $content, int $line]|string $content)[string $filename][]
+	 * @var array<string,array<{int,string,int}>> Files tokens to write
+	 * <string $filename, <{int $token_index, string $content, int $line}>|string $character>
 	 */
 	public array $write_files = [];
 
@@ -35,7 +35,7 @@ trait Replace
 				foreach ($class_uses as $class_use) {
 					if (
 						($search[T_TYPE] === T_EXTENDS)
-						&& in_array($class_use[T_CLASS], $this->configuration)
+						&& in_array($class_use[T_CLASS], $this->configuration, true)
 					) {
 						continue;
 					}
