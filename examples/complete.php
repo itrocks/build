@@ -8,6 +8,7 @@ use ITRocks\Extend\Implement;
 
 include __DIR__ . '/autoload.php';
 
+// phpcs:disable
 interface An_Interface
 {
 	public function calculate();
@@ -16,7 +17,7 @@ interface An_Interface
 #[Extend(Has_Code::class), Implement(An_Interface::class)]
 trait Calculate_Code
 {
-	public function calculate()
+	public function calculate() : void
 	{
 		$this->code = uniqid();
 	}
@@ -24,7 +25,7 @@ trait Calculate_Code
 
 trait Calculate_Code_2
 {
-	public function calculate()
+	public function calculate() : void
 	{
 		$this->code = parent::calculate(). '-2';
 	}
@@ -61,6 +62,7 @@ class Other_Item extends Item
 class Other_User extends User
 {
 }
+// phpcs:enable
 
 $item = new Item;
 $user = new User;

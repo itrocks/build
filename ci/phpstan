@@ -1,0 +1,7 @@
+#!/bin/bash
+cd "$(dirname "${BASH_SOURCE[0]}")" || return
+if test -f ../vendor/bin/phpstan; then
+  ../vendor/bin/phpstan
+else
+  ../../../bin/phpstan
+fi

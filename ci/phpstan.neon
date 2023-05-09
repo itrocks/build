@@ -1,0 +1,13 @@
+includes:
+	- phar://phpstan.phar/conf/bleedingEdge.neon
+	- ../../../phpstan/phpstan-strict-rules/rules.neon
+parameters:
+	level: 0
+	paths:
+		- ../src
+	checkBenevolentUnionTypes: true
+	checkImplicitMixed: true
+	checkTooWideReturnTypesInProtectedAndPublicMethods: true
+	checkUninitializedProperties: true
+	rememberPossiblyImpureFunctionValues: false
+	reportAlwaysTrueInLastCondition: true
