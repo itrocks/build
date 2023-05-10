@@ -5,7 +5,8 @@ trait Replace
 {
 
 	//-------------------------------------------------------------------------------- REPLACED_TYPES
-	const REPLACED_TYPES = [T_ATTRIBUTE, T_CLASS, T_EXTENDS, T_NEW, T_STATIC, T_USE];
+	/** @var int[] */
+	protected const REPLACED_TYPES = [T_ATTRIBUTE, T_CLASS, T_EXTENDS, T_NEW, T_STATIC, T_USE];
 
 	//-------------------------------------------------------------------------------- $exclude_files
 	/** @var array<string,int> <string $filename, int $key> Relative to the project home directory. */

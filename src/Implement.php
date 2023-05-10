@@ -20,6 +20,7 @@ trait Implement
 	/**
 	 * @param array<int,array<string>> $composition
 	 *        array<self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE|T_TRAIT, array<string $component>>
+	 * @param-out array<int,array<string>> $composition
 	 */
 	protected function addTraitImplements(array &$composition) : void
 	{
@@ -146,6 +147,7 @@ trait Implement
 	{
 		$cache_configuration_file = $this->class_index->getHome() . static::CACHE_DIRECTORY
 			. '/build.php';
+		/** @var array<string,array<string>|string> $old_configuration */
 		$old_configuration = file_exists($cache_configuration_file)
 			? include($cache_configuration_file)
 			: [];

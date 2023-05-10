@@ -25,6 +25,10 @@ class Build
 	public array $file_tokens;
 
 	//----------------------------------------------------------------------------------- __construct
+	/**
+	 * @param array<string,array<string>|string> $configuration
+	 * @param array<int,string>                  $exclude
+	 */
 	public function __construct(array $configuration, Index $class_index, array $exclude = [])
 	{
 		$this->class_index   = $class_index;
