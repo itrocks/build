@@ -13,7 +13,7 @@ trait Replace
 
 	//---------------------------------------------------------------------------------- $write_files
 	/**
-	 * @var array<string,array<{int,string,int}>> Files tokens to write
+	 * @var array<string,array<array{int,string,int}>> Files tokens to write
 	 * <string $filename, <{int $token_index, string $content, int $line}>|string $character>
 	 */
 	public array $write_files = [];
@@ -26,7 +26,7 @@ trait Replace
 			foreach (static::REPLACED_TYPES as $search[T_TYPE]) {
 				$search[T_USE] = $class;
 				$class_uses    = $this->class_index->search($search, true);
-				if (!$class_uses) {
+				if ($class_uses === []) {
 					continue;
 				}
 				if (is_array($replacement)) {

@@ -31,18 +31,21 @@ trait Cache
 		$data    = '<?php return [';
 		$counter = 0;
 		foreach ($this->configuration as $class => $replacement) {
-			if ($counter ++) {
+			if ($counter > 0) {
 				$data .= ',';
 			}
+			$counter ++;
 			$data .= "$class::class=>";
 			if (is_string($replacement)) {
 				$data .= "$replacement::class";
 			}
 			else {
 				$data .= '[';
-				foreach ($replacement as $key => $interface_trait) {
-					if ($key) {
+				$first = true;
+				foreach ($replacement as $interface_trait) {
+					if ($first) {
 						$data .= ',';
+						$first = false;
 					}
 					$data .= "$interface_trait::class";
 				}

@@ -48,7 +48,7 @@ trait Implement
 		$search     = [T_TYPE => T_DECLARE_CLASS, T_USE => $class];
 		$class_use  = $this->class_index->search($search, true)[0] ?? false;
 		$last_level = array_key_last($composition[T_TRAIT]);
-		if ($class_use) {
+		if ($class_use !== false) {
 			$extends  = "\\$class";
 			$abstract = $this->isAbstract($class_use);
 			$type     = 'class';
@@ -69,27 +69,32 @@ trait Implement
 			}
 			$source .= "\n";
 			if ($is_last) {
-				if ($annotations = $composition[self::T_ANNOTATION]) {
+				$annotations = $composition[self::T_ANNOTATION];
+				if ($annotations !== []) {
 					$source .= "/**\n *" . join("\n *", $annotations) . "\n */\n";
 				}
 				$source .= join("\n", $composition[T_ATTRIBUTE]);
 			}
-			if ($class_use && ($abstract || !$is_last)) {
+			if (($class_use !== false) && ($abstract || !$is_last)) {
 				$source .= 'abstract ';
 			}
 			$source .= $type . ' ' . $built;
-			if ($class_use) {
+			if ($class_use !== false) {
 				$source .= " extends $extends";
 			}
-			if ($is_last && $class_use && ($implements = $composition[T_INTERFACE])) {
+			if (
+				$is_last
+				&& ($class_use !== false)
+				&& (($implements = $composition[T_INTERFACE]) !== [])
+			) {
 				$source .= "\n\timplements \\" . join(', \\', $implements);
 			}
 			$source .= "\n{\n";
-			if ($traits) {
+			if ($traits !== []) {
 				$source .= "\tuse \\" . join(";\n\tuse \\", $traits) . ";\n";
 			}
 			$source .= "}\n";
-			if ($class_use && !$is_last) {
+			if (($class_use !== false) && !$is_last) {
 				$extends = $built;
 			}
 		}
@@ -113,7 +118,7 @@ trait Implement
 	}
 
 	//---------------------------------------------------------------------------- identifyComponents
-	/** @var string[] $components Annotations/attributes/interfaces/traits */
+	/** @param string[] $components Annotations/attributes/interfaces/traits */
 	protected function identifyComponents(array $components) : void
 	{
 		$search = [T_TYPE => T_DECLARE_TRAIT];
@@ -129,8 +134,9 @@ trait Implement
 			elseif (isset($this->types[$component])) {
 				continue;
 			}
-			$search[T_USE]           = $component;
-			$this->types[$component] = $this->class_index->search($search) ? T_TRAIT : T_INTERFACE;
+			$search[T_USE] = $component;
+			$found_trait   = ($this->class_index->search($search) !== []);
+			$this->types[$component] = $found_trait ? T_TRAIT : T_INTERFACE;
 		}
 	}
 
@@ -149,8 +155,8 @@ trait Implement
 				!is_array($components)
 				|| (
 					(count($components) === count($old_components))
-					&& !array_diff($components, $old_components)
-					&& !array_diff($old_components, $components)
+					&& (array_diff($components, $old_components) === [])
+					&& (array_diff($old_components, $components) === [])
 				)
 			) {
 				continue;
@@ -167,7 +173,7 @@ trait Implement
 	protected function isAbstract(array $class_use) : bool
 	{
 		$tokens = $this->class_index->file_tokens[$class_use[T_FILE]] ?? null;
-		if (!$tokens) {
+		if ($tokens === null) {
 			$tokens = $this->class_index->file_tokens[$class_use[T_FILE]]
 				= token_get_all(file_get_contents($class_use[T_FILE]));
 		}
@@ -184,7 +190,7 @@ trait Implement
 	//-------------------------------------------------------------------------------- sortComponents
 	/**
 	 * @param string[] $components Annotations/attributes/interfaces/traits
-	 * @return array<int,array<string>
+	 * @return array<int,array<string>>
 	 * array<self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE|T_TRAIT, string $component>
 	 */
 	protected function sortComponents(array $components) : array
