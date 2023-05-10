@@ -55,7 +55,9 @@ trait Implement
 		}
 		else {
 			array_unshift($composition[T_TRAIT][$last_level], $class);
-			$type = 'trait';
+			$abstract = false;
+			$extends  = '';
+			$type     = 'trait';
 		}
 		// is abstract
 		$source     = "<?php\nnamespace $class;\n";
@@ -77,7 +79,6 @@ trait Implement
 			}
 			$source .= $type . ' ' . $built;
 			if ($class_use) {
-				/** @noinspection PhpUndefinedVariableInspection if ($class_use) */
 				$source .= " extends $extends";
 			}
 			if ($is_last && $class_use && ($implements = $composition[T_INTERFACE])) {
