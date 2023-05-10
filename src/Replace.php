@@ -40,20 +40,25 @@ trait Replace
 					) {
 						continue;
 					}
+					/** @var string $file phpstan fault */
 					$file = $class_use[T_FILE];
 					if (isset($this->exclude_files[$file])) {
 						continue;
 					}
 					if (!isset($this->class_index->file_tokens[$file])) {
-						$this->class_index->file_tokens[$file] = token_get_all(file_get_contents($file));
+						$file_content = file_get_contents($file);
+						if ($file_content === false) $file_content = '';
+						$this->class_index->file_tokens[$file] = token_get_all($file_content);
 					}
 					if (!isset($this->write_files[$file])) {
 						$this->write_files[$file] =& $this->class_index->file_tokens[$file];
 					}
+					/** @var int $line phpstan fault */
+					$line = $class_use[T_LINE];
 					$this->write_files[$file][$class_use[T_TOKEN_KEY]] = [
 						T_NAME_FULLY_QUALIFIED,
 						'\\' . $replacement,
-						$class_use[T_LINE]
+						$line
 					];
 				}
 			}

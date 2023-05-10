@@ -2,7 +2,7 @@ includes:
 	- phar://phpstan.phar/conf/bleedingEdge.neon
 	- ../../../phpstan/phpstan-strict-rules/rules.neon
 parameters:
-	level: 4
+	level: 9
 	paths:
 		- ../src
 	checkBenevolentUnionTypes: true

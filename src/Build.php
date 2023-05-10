@@ -31,10 +31,13 @@ class Build
 	 */
 	public function __construct(array $configuration, Index $class_index, array $exclude = [])
 	{
-		$this->class_index   = $class_index;
-		$this->configuration = $configuration;
-		$this->exclude_files = array_flip($exclude);
-		$this->file_tokens   = $class_index->file_tokens;
+		if ($class_index->file_tokens === null) {
+			$class_index->file_tokens = [];
+		}
+		$this->class_index   =  $class_index;
+		$this->configuration =  $configuration;
+		$this->exclude_files =  array_flip($exclude);
+		$this->file_tokens   =& $class_index->file_tokens;
 	}
 
 }
