@@ -14,7 +14,7 @@ trait Replace
 
 	//---------------------------------------------------------------------------------- $write_files
 	/**
-	 * @var array<string,array<array{int,string,int}>> Files tokens to write
+	 * @var array<string,array<array{int,string,int}|string>> Files tokens to write
 	 * <string $filename, <{int $token_index, string $content, int $line}>|string $character>
 	 */
 	public array $write_files = [];
