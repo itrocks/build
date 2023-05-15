@@ -44,8 +44,10 @@ trait Cache
 				$first = true;
 				foreach ($replacement as $interface_trait) {
 					if ($first) {
-						$data .= ',';
 						$first = false;
+					}
+					else {
+						$data .= ',';
 					}
 					$data .= "$interface_trait::class";
 				}
