@@ -82,7 +82,7 @@ trait Replace
 			foreach ($tokens as $token) {
 				$buffer .= is_string($token) ? $token : $token[1];
 			}
-			$file = $this->getCacheDirectory() . '/build/'
+			$file = $this->getCacheDirectory() . '/'
 				. str_replace(['/', '\\'], '-', substr($file, 0, -4));
 			file_put_contents($file, $buffer);
 		}

@@ -160,8 +160,7 @@ class Replace_Test extends TestCase
 			false,
 			function(Build $source_build) use(&$build) { $build = $source_build; }
 		);
-		mkdir(__DIR__ . '/cache');
-		mkdir(__DIR__ . '/cache/build');
+		mkdir(__DIR__ . '/cache/build', 0777, true);
 		$build->save();
 		static::assertFalse(is_file(__DIR__ . '/cache/build/file.php'));
 		rmdir(__DIR__ . '/cache/build');
@@ -198,16 +197,18 @@ class Replace_Test extends TestCase
 	public function testSave() : void
 	{
 		/** @var Build $build */
-		$actual = $this->buildToBuffer(
+		$this->buildToBuffer(
 			'<?php new Origin();',
 			['Origin' => 'Replacement'],
 			true,
 			function(Build $source_build) use(&$build) { $build = $source_build; }
 		);
-		mkdir(__DIR__ . '/cache');
-		mkdir(__DIR__ . '/cache/build');
+		mkdir(__DIR__ . '/cache/build', 0777, true);
 		$build->save();
-		static::assertTrue(is_file(__DIR__ . '/cache/build/file'));
+		static::assertEquals(
+			'<?php new \Replacement();',
+			file_get_contents(__DIR__ . '/cache/build/file')
+		);
 		unlink(__DIR__ . '/cache/build/file');
 		rmdir(__DIR__ . '/cache/build');
 		rmdir(__DIR__ . '/cache');

@@ -160,12 +160,16 @@ trait Implement
 	/** Implement replacement classes */
 	public function implement() : void
 	{
-		$cache_configuration_file = $this->class_index->getHome() . static::CACHE_DIRECTORY
-			. '/build.php';
+		$cache_configuration_file = $this->getCacheDirectory() . '/configuration.json';
+		$content = file_exists($cache_configuration_file)
+			? file_get_contents($cache_configuration_file)
+			: false;
+		if ($content === false) {
+			$content = '[]';
+		}
 		/** @var array<string,array<string>|string> $old_configuration */
-		$old_configuration = file_exists($cache_configuration_file)
-			? include($cache_configuration_file)
-			: [];
+		$old_configuration = json_decode($content, true);
+		$changes = false;
 		foreach ($this->configuration as $class => $components) {
 			$old_components = $old_configuration[$class] ?? [];
 			if (
@@ -180,10 +184,13 @@ trait Implement
 				continue;
 			}
 			$source   = $this->compose($class, $this->compositionTree($components));
-			$filename = $this->getCacheDirectory() . '/build/' . str_replace('\\', '-', $class) . '-B';
+			$filename = $this->getCacheDirectory() . '/' . str_replace('\\', '-', $class) . '-B';
 			file_put_contents($filename, $source);
+			$changes = true;
 		}
-		$this->saveCacheConfigurationFile($cache_configuration_file);
+		if ($changes) {
+			file_put_contents($cache_configuration_file, json_encode($this->configuration));
+		}
 	}
 
 	//------------------------------------------------------------------------------------ isAbstract
