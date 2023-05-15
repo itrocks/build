@@ -197,7 +197,7 @@ trait Implement
 		$filename = $class_use[T_FILE];
 		$tokens   = $this->class_index->file_tokens[$filename] ?? null;
 		if ($tokens === null) {
-			$file_content = file_get_contents($filename);
+			$file_content = file_get_contents($this->class_index->getHome() . '/' . $filename);
 			if ($file_content === false) $file_content = '';
 			$tokens = token_get_all($file_content);
 			$this->class_index->file_tokens[$filename] = $tokens;

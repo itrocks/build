@@ -56,7 +56,7 @@ trait Replace
 					continue;
 				}
 				if (!isset($this->class_index->file_tokens[$file])) {
-					$file_content = file_get_contents($file);
+					$file_content = file_get_contents($this->class_index->getHome() . '/' . $file);
 					if ($file_content === false) $file_content = '';
 					$this->class_index->file_tokens[$file] = token_get_all($file_content);
 				}
