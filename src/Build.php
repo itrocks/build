@@ -20,24 +20,19 @@ class Build
 	/** @var array<string,array<string>|string> <$class, <$component> | $replacement> */
 	public array $configuration;
 
-	//---------------------------------------------------------------------------------- $file_tokens
-	/** @var array<string,array<int,array{int,string,int}|string>> */
-	public array $file_tokens;
-
 	//----------------------------------------------------------------------------------- __construct
 	/**
 	 * @param array<string,array<string>|string> $configuration
-	 * @param array<int,string>                  $exclude
+	 * @param array<int,string>                  $exclude_files
 	 */
-	public function __construct(array $configuration, Index $class_index, array $exclude = [])
+	public function __construct(array $configuration, Index $class_index, array $exclude_files = [])
 	{
 		if ($class_index->file_tokens === null) {
 			$class_index->file_tokens = [];
 		}
 		$this->class_index   =  $class_index;
 		$this->configuration =  $configuration;
-		$this->exclude_files =  array_flip($exclude);
-		$this->file_tokens   =& $class_index->file_tokens;
+		$this->exclude_files =  array_flip($exclude_files);
 	}
 
 }
