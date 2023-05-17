@@ -124,3 +124,19 @@ The internally replaced code for your program, which will be executed:
 $car = new B\Car;
 echo "My Car maximum speed is " . $car->getMaxSpeed() . "\n";
 ```
+
+Known potential issues
+----------------------
+
+- Missing re-building a disappeared cache file (configuration unchanged).
+- Missing re-building configurations for which any of the source or composition files changed.
+- Missing purging cache files when stopping building a class/trait.
+
+Known limits
+------------
+
+These use cases are known for non-working today. May be managed later:
+
+- Building a trait using additional traits which one extends another one will not work as expected:
+  will crash if there is a any methods conflict. Extension traits with extends will work only for
+  classes.
