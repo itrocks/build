@@ -7,11 +7,11 @@ trait Replace
 {
 
 	//------------------------------------------------------------------------ EXCLUDE_ATTRIBUTE_USES
-	/** @var string[] Class uses into these attributes are not replaced */
+	/** @var list<string> Class uses into these attributes are not replaced */
 	protected const EXCLUDE_ATTRIBUTE_USES = [Extend::class, Implement::class];
 
 	//-------------------------------------------------------------------------------- REPLACED_TYPES
-	/** @var int[] Only these class use types are replaced */
+	/** @var list<int> Only these class use types are replaced */
 	protected const REPLACED_TYPES = [T_ATTRIBUTE, T_CLASS, T_EXTENDS, T_NEW, T_STATIC, T_USE];
 
 	//-------------------------------------------------------------------------------- $exclude_files
@@ -20,7 +20,7 @@ trait Replace
 
 	//---------------------------------------------------------------------------------- $write_files
 	/**
-	 * @var array<string,array<array{int,string,int}|string>> Files tokens to write
+	 * @var array<string,array<int,array{int,string,int}|string>> Files tokens to write
 	 * <string $filename, <{int $token_index, string $content, int $line}>|string $character>
 	 */
 	public array $write_files = [];
@@ -65,7 +65,9 @@ trait Replace
 				}
 				/** @var int $line phpstan fault */
 				$line = $class_use[T_LINE];
-				$this->write_files[$file][$class_use[T_TOKEN_KEY]] = [
+				/** @var int $token_key phpstan fault */
+				$token_key = $class_use[T_TOKEN_KEY];
+				$this->write_files[$file][$token_key] = [
 					T_NAME_FULLY_QUALIFIED,
 					'\\' . $replacement,
 					$line

@@ -8,16 +8,16 @@ trait Implement
 {
 
 	//------------------------------------------------------------------------------------ COMPONENTS
-	const COMPONENTS = [self::T_ANNOTATION, T_ATTRIBUTE, T_INTERFACE, T_TRAIT];
+	public const COMPONENTS = [self::T_ANNOTATION, T_ATTRIBUTE, T_INTERFACE, T_TRAIT];
 
 	//----------------------------------------------------------------------------- SIMPLE_COMPONENTS
-	const SIMPLE_COMPONENTS = [self::T_ANNOTATION, T_ATTRIBUTE, T_INTERFACE];
+	public const SIMPLE_COMPONENTS = [self::T_ANNOTATION, T_ATTRIBUTE, T_INTERFACE];
 
 	//---------------------------------------------------------------------------------- T_ANNOTATION
-	const T_ANNOTATION = 0;
+	public const T_ANNOTATION = 0;
 
 	//--------------------------------------------------------------------------------------- T_TRAIT
-	const T_TRAIT = T_TRAIT;
+	public const T_TRAIT = T_TRAIT;
 
 	//---------------------------------------------------------------------------------------- $types
 	/**
@@ -28,9 +28,9 @@ trait Implement
 
 	//---------------------------------------------------------------------------- addTraitImplements
 	/**
-	 * @param array<value-of<self::COMPONENTS>,array<string>> $composition
+	 * @param array<value-of<self::COMPONENTS>,list<string>> $composition
 	 *        array<self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE|T_TRAIT, array<string $component>>
-	 * @param-out array<value-of<self::COMPONENTS>,array<string>> $composition
+	 * @param-out array<value-of<self::COMPONENTS>,list<string>> $composition
 	 */
 	protected function addTraitImplements(array &$composition) : void
 	{
@@ -39,8 +39,9 @@ trait Implement
 		foreach ($composition[T_TRAIT] as $trait) {
 			$search[T_CLASS] = $trait;
 			foreach ($this->class_index->search($search, true) as $implement) {
-				if (!in_array($implement, $interfaces, true)) {
-					$interfaces[] = $implement[T_USE];
+				$implements = $implement[T_USE];
+				if (!in_array($implements, $interfaces, true)) {
+					$interfaces[] = $implements;
 				}
 			}
 		}
@@ -48,9 +49,9 @@ trait Implement
 
 	//--------------------------------------------------------------------------------------- compose
 	/**
-	 * @param array<value-of<self::SIMPLE_COMPONENTS>,array<string>>|array<self::T_TRAIT,array<int,list<string>>> $composition
-	 *        array<self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE, array<string $component>>
-	 *        array<T_TRAIT, array<int $level, array<string $trait>>>
+	 * @param array<value-of<self::SIMPLE_COMPONENTS>,list<string>>|array<self::T_TRAIT,list<list<string>>> $composition
+	 *        array<self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE, list<string $component>>
+	 *        array<T_TRAIT, list<$level, list<string $trait>>>
 	 * @return string Composed class source code
 	 */
 	protected function compose(string $class, array $composition) : string
@@ -59,21 +60,22 @@ trait Implement
 		/** @var array<int,list<string>> $composition_traits phpstan fault */
 		$composition_traits = $composition[T_TRAIT];
 		$search             = [T_TYPE => T_DECLARE_CLASS, T_USE => $class];
-		$class_use          = $this->class_index->search($search, true)[0] ?? false;
+		$class_use          = $this->class_index->search($search, true)[0] ?? null;
 		$last_level         = array_key_last($composition_traits);
-		if ($class_use !== false) {
-			$extends  = "\\$class";
+		if (isset($class_use)) {
 			$abstract = $this->isAbstract($class_use);
+			$is_class = true;
+			$extends  = "\\$class";
 			$type     = 'class';
 		}
 		else {
-			array_unshift($composition_traits[$last_level], $class);
+			array_unshift($composition_traits[0], $class);
 			$abstract = false;
 			$extends  = '';
+			$is_class = false;
 			$type     = 'trait';
 		}
-		// is abstract
-		$source     = "<?php\nnamespace $class;\n";
+		$source = "<?php\nnamespace $class;\n";
 		foreach ($composition_traits as $level => $traits) {
 			$is_last = ($level === $last_level);
 			$built   = 'B';
@@ -85,20 +87,22 @@ trait Implement
 				/** @var string[] $annotations phpstan fault */
 				$annotations = $composition[self::T_ANNOTATION];
 				if ($annotations !== []) {
-					$source .= "/**\n *" . join("\n *", $annotations) . "\n */\n";
+					$source .= "/**\n * " . join("\n * ", $annotations) . "\n */\n";
 				}
 				/** @var string[] $attributes phpstan fault */
 				$attributes = $composition[T_ATTRIBUTE];
-				$source .= join("\n", $attributes);
+				if ($attributes !== []) {
+					$source .= join("\n", $attributes) . "\n";
+				}
 			}
-			if (($class_use !== false) && ($abstract || !$is_last)) {
+			if ($is_class && ($abstract || !$is_last)) {
 				$source .= 'abstract ';
 			}
 			$source .= $type . ' ' . $built;
-			if ($class_use !== false) {
+			if ($is_class) {
 				$source .= " extends $extends";
 			}
-			if ($is_last && ($class_use !== false)) {
+			if ($is_last && $is_class) {
 				/** @var string[] $implements phpstan fault */
 				$implements = $composition[T_INTERFACE];
 				if ($implements !== []) {
@@ -106,11 +110,14 @@ trait Implement
 				}
 			}
 			$source .= "\n{\n";
+			if (($level > 0) && !$is_class) {
+				array_unshift($traits, $class . '\\B' . ($level - 1));
+			}
 			if ($traits !== []) {
 				$source .= "\tuse \\" . join(";\n\tuse \\", $traits) . ";\n";
 			}
 			$source .= "}\n";
-			if (($class_use !== false) && !$is_last) {
+			if ($is_class && !$is_last) {
 				$extends = $built;
 			}
 		}
@@ -119,10 +126,10 @@ trait Implement
 
 	//------------------------------------------------------------------------------- compositionTree
 	/**
-	 * @param  string[] $components Annotations/attributes/interfaces/traits
-	 * @return array<value-of<self::SIMPLE_COMPONENTS>,array<string>>|array<self::T_TRAIT,array<int,list<string>>>
-	 *        array<self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE, array<string $component>>
-	 *        array<T_TRAIT, array<int $level, array<string $trait>>>
+	 * @param  list<string> $components Annotations/attributes/interfaces/traits
+	 * @return array<value-of<self::SIMPLE_COMPONENTS>,list<string>>|array<self::T_TRAIT,list<list<string>>>
+	 *        array<self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE, list<string $component>>
+	 *        array<T_TRAIT, list<$level, list<string $trait>>>
 	 */
 	protected function compositionTree(array $components) : array
 	{
@@ -134,7 +141,7 @@ trait Implement
 	}
 
 	//---------------------------------------------------------------------------- identifyComponents
-	/** @param string[] $components Annotations/attributes/interfaces/traits */
+	/** @param list<string> $components Annotations/attributes/interfaces/traits */
 	protected function identifyComponents(array $components) : void
 	{
 		$search = [T_TYPE => T_DECLARE_TRAIT];
@@ -223,13 +230,13 @@ trait Implement
 
 	//-------------------------------------------------------------------------------- sortComponents
 	/**
-	 * @param string[] $components Annotations/attributes/interfaces/traits
-	 * @return array<value-of<self::COMPONENTS>,array<string>>
-	 * array<self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE|T_TRAIT, string $component>
+	 * @param list<string> $components Annotations/attributes/interfaces/traits
+	 * @return array<value-of<self::COMPONENTS>,list<string>>
+	 * array<self::T_ANNOTATION|T_ATTRIBUTE|T_INTERFACE|T_TRAIT, list<string $component>>
 	 */
 	protected function sortComponents(array $components) : array
 	{
-		/** @var array<value-of<self::COMPONENTS>,array<string>> $build */
+		/** @var array<value-of<self::COMPONENTS>,list<string>> $build */
 		$build = [self::T_ANNOTATION => [], T_ATTRIBUTE => [], T_INTERFACE => [], T_TRAIT => []];
 		foreach ($components as $component) {
 			$type = $this->types[$component];
@@ -240,8 +247,8 @@ trait Implement
 
 	//--------------------------------------------------------------------------------- traitsByLevel
 	/**
-	 * @param string[] $traits
-	 * @return array<int,list<string>> array<int $level, list<string $trait>
+	 * @param list<string> $traits
+	 * @return list<list<string>> list<$level, list<string $trait>
 	 */
 	protected function traitsByLevel(array $traits) : array
 	{
@@ -275,6 +282,7 @@ trait Implement
 			$level ++;
 		}
 
+		/** @var list<list<string>> $by_level phpstan force list */
 		return $by_level;
 	}
 
